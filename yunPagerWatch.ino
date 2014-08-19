@@ -17,20 +17,23 @@ void setup()
   Serial.begin(9600);
   pagersUp();
   Bridge.begin();
-  server.listenOnLocalhost();
-  server.begin();
-  playAlpha();
+  Console.begin();
+  while (!Console){
+    ; // wait for Console port to connect.
+  }
+  Console.println("connected!");
 }
 
 void loop() 
 {
+  playAlpha();
 }
 
 void playAlpha()
 {
 	for(int i=0; i<PATTERNSIZE; i++)
 	{
-	  Serial.write(patternToChar(i));
+	  Console.write(patternToChar(chordPatterns[i]));
 		patternVibrate(chordPatterns[i], PWM);
 		delay(TIMING);
 		patternVibrate(chordPatterns[i],0);
