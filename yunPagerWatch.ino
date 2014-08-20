@@ -7,21 +7,20 @@
 YunServer server;
 
 byte chordPatterns[] {1,5,48,56,2,24,33,6,4,14,28,12,40,30,7,18,31,3,16,32,51,45,8,35,54,49,};
+//the pattern above is based on a bit of ergo research when braille fell short
+//chordPatterns[0] == "a" possition
 #define PATTERNSIZE sizeof(chordPatterns)
   
-#define TIMING 1000
-#define PWM 200  
+#define TIMING 1000 // haptic char durration
+#define PWM 200   // intensity- this is planed for upper/lower
 
 void setup() 
 {
   Serial.begin(9600);
   pagersUp();
   Bridge.begin();
-  Console.begin();
-  while (!Console){
-    ; // wait for Console port to connect.
-  }
-  Console.println("connected!");
+  Console.begin();// "telnet localhost 6571" type that sshed into the yun
+  while (!Console){;}// wait for Console port to connect.!!SKETCH ONLY RUNS WHEN CONNECTED!!
 }
 
 void loop() 
