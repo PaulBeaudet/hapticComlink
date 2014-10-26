@@ -1,8 +1,10 @@
 //yunPagerWatch.ino
 
 #include <Bridge.h>
+#include <FileIO.h>
 #include <YunServer.h>
 #include <YunClient.h>
+#include <Console.h>
 
 YunServer server;
 
@@ -19,13 +21,33 @@ void setup()
   Serial.begin(9600);
   pagersUp();
   Bridge.begin();
-  Console.begin();// "telnet localhost 6571" type that sshed into the yun
-  while (!Console){;}// wait for Console port to connect.!!SKETCH ONLY RUNS WHEN CONNECTED!!
+  FileSystem.begin();
+  Consol.begin();
+  playAlpha();
+  //Console.begin();// "telnet localhost 6571" type that sshed into the yun
+  //while (!Console){;}// wait for Console port to connect.!!SKETCH ONLY RUNS WHEN CONNECTED!!
 }
 
 void loop() 
 {
-  playAlpha();
+  //playAlpha();
+  //messageRead();
+}
+
+void recieveCommand()
+{
+  if (Console.available() > 0) {
+    char c = Console.read(); // read the next char received
+    // look for the newline character, this is the last character in the string
+    if (c == '\n') 
+    {
+      
+    }
+    else 
+    {  	 // if the buffer is empty Cosole.read() returns -1
+      
+    }
+  }
 }
 
 void playAlpha()
@@ -38,6 +60,33 @@ void playAlpha()
 		patternVibrate(chordPatterns[i],0);
 		delay(TIMING);
 	}
+}
+
+void messageRead()
+{
+  File thisFile = FileSystem.open("/mnt/sda1/arduino/haptic.txt", FILE_READ);
+
+  byte currentLetter = thisFile.read();
+  patternVibrate(charToPattern(currentLetter),PWM);
+  delay(TIMING);
+  patternVibrate(charToPattern(currentLetter),0);
+  delay(TIMING);
+}
+
+byte charToPattern(byte letter)
+{
+  if(letter == 32){return 64;}//Express convertion: Space // Space also doubles as the first shift in a chord
+  
+  for (byte i=0; i<PATTERNSIZE; i++)   
+  {// for all of the key mapping
+    if ( letter == ('a'+ i) ){return chordPatterns[i];}//return typicall letter patterns
+    if ( letter < 58 && letter == ('0' + i) ) {return chordPatterns[i] | 64;} // in numbers shift case return pattern with 6th bit shift
+    if ( letter > 32 && letter < 48 && letter == (23 + i) ) {return chordPatterns[i] | 64;}//k-y cases ( !"#$%&'()*+'-./ )return 6th bit shift
+    if ( letter < 65 && letter == (':' + i) ) {return chordPatterns[i] | 128;}//               a-g cases  (:;<=>?@ ), return 7th bit shift
+    if ( letter > 90 && letter < 97 && letter == (84 + i) ) {return chordPatterns[i] | 128;}// h-m cases  ([\]^_`  ), return 7th bit shift
+    if ( letter > 122 && letter < 127 && letter == (110 + i) ) {return chordPatterns[i] | 128;}//n-q cases( {|}~   ), return 7th bit shift
+  }
+  return 0;
 }
 
 byte patternToChar(byte base)
