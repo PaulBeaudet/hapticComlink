@@ -19,14 +19,14 @@ void pagersUp()
 
 //-------------- actuating pagers---------------
 
-void patternVibrate(byte pins, byte pwm)//
+void patternVibrate(byte pins)//
 {
   for (byte i=0; i<NUMPAGERS; i++) 
   // !! only the first 6 bits from the least significant are necisarry !!
   {//!! convert to read from least significant bit!!
     if (pins & (1 << i)) // show desired bit (pin)
     { // imagine incoming byte as an array of 8 bits, one for each pager
-      analogWrite(pagers[i], pwm);
+      analogWrite(pagers[i], PWM);
     }
     else
     {
